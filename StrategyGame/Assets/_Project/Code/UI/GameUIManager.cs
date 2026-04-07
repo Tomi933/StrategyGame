@@ -13,6 +13,7 @@ namespace Assets._Project.Code.UI
 
         private void Start()
         {
+
             foreach (var item in spawnUnitButtons)
             {
                 item.NameText.text = item.UnitConfig.Name;

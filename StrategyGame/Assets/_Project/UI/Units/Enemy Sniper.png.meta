@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2472c78293314954b83b43ec9c6d076f
+guid: 2b24b966cb1ea5241a26197dfa467826
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3450129363473439255
-    second: 5b5e01a2-7694-47b3-a1a8-05e817d8f3dd_0
+      213: -4275079280189478912
+    second: Enemy Sniper_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 5b5e01a2-7694-47b3-a1a8-05e817d8f3dd_0
+      name: Enemy Sniper_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1024
+        width: 1101
+        height: 818
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9e5650d9f9dae10d0800000000000000
-      internalID: -3450129363473439255
+      spriteID: 0086ca58b0edba4c0800000000000000
+      internalID: -4275079280189478912
       vertices: []
       indices: 
       edges: []

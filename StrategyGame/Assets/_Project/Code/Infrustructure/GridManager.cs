@@ -15,9 +15,18 @@ public class GridManager : MonoBehaviour
 
     Cell[,] grid;
 
+    [SerializeField] private EnemySpawner enemySpawner;
+
     void Start()
     {
         GenerateGrid();
+        enemySpawner.SpawnEnemies();
+    }
+
+
+    public Cell GetCell(int x, int y)
+    {
+        return grid[x, y];
     }
 
     void GenerateGrid()

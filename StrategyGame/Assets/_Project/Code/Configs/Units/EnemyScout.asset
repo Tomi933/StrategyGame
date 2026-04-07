@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80c1e9bc4f46d634186c6254204bf00e, type: 3}
+  m_Name: EnemyScout
+  m_EditorClassIdentifier: 
+  Name: EnemyScout
+  Prefab: {fileID: 8588697649277467000, guid: 786d150f25c9a4c42b027fa9c9110442, type: 3}
+  Sprite: {fileID: 7691749466728003701, guid: eae8079c613d95f4dbb9617773107497, type: 3}
