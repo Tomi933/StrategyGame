@@ -843,14 +843,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridManager: {fileID: 85241252}
-  enemyPrefabs:
-  - {fileID: 1110906346770037561, guid: 2b6827481f178d84e95fa5423587987a, type: 3}
-  - {fileID: 8588697649277467000, guid: 786d150f25c9a4c42b027fa9c9110442, type: 3}
-  - {fileID: 6465744498402855633, guid: 1b1ce6ea5fc849c489fddf1b4972738a, type: 3}
-  - {fileID: 4648541106095577468, guid: 3989c2350407c8248b658c1f362cd6cf, type: 3}
-  - {fileID: 1101164578749993599, guid: f8597012695aab445a6af03bba82bef3, type: 3}
-  minEnemies: 3
-  maxEnemies: 6
+  enemies:
+  - UnitConfig: {fileID: 11400000, guid: 99992e2dcdd29b443b5c3d0339f597d4, type: 2}
+    Count: 1
+  - UnitConfig: {fileID: 11400000, guid: de17862adcfea5a4ca56ca2c525e36c2, type: 2}
+    Count: 2
+  - UnitConfig: {fileID: 11400000, guid: 95fb45c6439692f42b7f4f6ba51fabad, type: 2}
+    Count: 1
+  - UnitConfig: {fileID: 11400000, guid: e631086ec5835f548bdacf8f4fb7019b, type: 2}
+    Count: 2
+  - UnitConfig: {fileID: 11400000, guid: 2c14c23ae76d310408dc8e2598c3ebbb, type: 2}
+    Count: 4
 --- !u!4 &1138513422
 Transform:
   m_ObjectHideFlags: 0
@@ -1224,7 +1227,6 @@ MonoBehaviour:
   - {fileID: 1869959723}
   - {fileID: 762644270}
   GridManager: {fileID: 85241252}
-  enemySpawner: {fileID: 0}
 --- !u!1001 &1869959721
 PrefabInstance:
   m_ObjectHideFlags: 0
