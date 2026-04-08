@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System;
 
+public enum UnitMoveType { Cross, Circle }
+
 public class Unit : MonoBehaviour
 {
     public Team team;
@@ -51,9 +53,7 @@ public class Unit : MonoBehaviour
         Destroy(gameObject);
     }
 
-
-
-    public List<Cell> GetAvailableCells(GridManager grid)
+    public List<Cell> GetAvailableCellsFor(GridManager grid, UnitMoveType type)
     {
         List<Cell> result = new List<Cell>();
 
@@ -61,25 +61,50 @@ public class Unit : MonoBehaviour
         {
             for (int y = -moveRange; y <= moveRange; y++)
             {
-                if (Mathf.Abs(x) + Mathf.Abs(y) > moveRange)
-                    continue;
+                int checkX;
+                int checkY;
 
-                int checkX = currentCell.x + x;
-                int checkY = currentCell.y + y;
-
-                if (checkX >= 0 && checkX < grid.width &&
-                    checkY >= 0 && checkY < grid.height)
+                if (type == UnitMoveType.Cross)
                 {
-                    Cell cell = grid.GetCell(checkX, checkY);
+                    if (x == 0 && y == 0) continue;
 
-                    if (!cell.isOccupied)
-                        result.Add(cell);
+                    if (x != 0 && y != 0) continue;
+
+                    checkX = currentCell.x + x;
+                    checkY = currentCell.y + y;
+
+                    if (checkX >= 0 && checkX < grid.width &&
+                        checkY >= 0 && checkY < grid.height)
+                    {
+                        Cell cell = grid.GetCell(checkX, checkY);
+
+                        if (!cell.isOccupied)
+                            result.Add(cell);
+                    }
+                }
+                else
+                {
+                    if (Mathf.Abs(x) + Mathf.Abs(y) > moveRange)
+                        continue;
+
+                     checkX = currentCell.x + x;
+                     checkY = currentCell.y + y;
+
+                    if (checkX >= 0 && checkX < grid.width &&
+                        checkY >= 0 && checkY < grid.height)
+                    {
+                        Cell cell = grid.GetCell(checkX, checkY);
+
+                        if (!cell.isOccupied)
+                            result.Add(cell);
+                    }
                 }
             }
         }
 
         return result;
     }
+
 
     public List<Cell> GetAttackCells(GridManager grid)
     {
@@ -173,4 +198,20 @@ public class Unit : MonoBehaviour
     {
         target.TakeDamage(damage);
     }
+
+
+    public List<Unit> GetAttackTargets2(GridManager grid, List<Unit> allUnits)
+    {
+        var targets = new List<Unit>();
+        foreach (var unit in allUnits)
+        {
+            if (unit.team == this.team) continue; // атакуємо тільки ворогів
+            int distance = Mathf.Abs(unit.currentCell.x - currentCell.x) +
+                           Mathf.Abs(unit.currentCell.y - currentCell.y);
+            if (distance <= attackRange)
+                targets.Add(unit);
+        }
+        return targets;
+    }
+
 }

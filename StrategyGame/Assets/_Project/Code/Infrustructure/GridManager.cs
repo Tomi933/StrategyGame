@@ -1,7 +1,10 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
+    [SerializeField] private EnemySpawner enemySpawner;
+
     public int width = 14;
     public int height = 11;
 
@@ -15,21 +18,10 @@ public class GridManager : MonoBehaviour
 
     Cell[,] grid;
 
-    [SerializeField] private EnemySpawner enemySpawner;
+    public Cell GetCell(int x, int y) =>
+        grid[x, y];
 
-    void Start()
-    {
-        GenerateGrid();
-        enemySpawner.SpawnEnemies();
-    }
-
-
-    public Cell GetCell(int x, int y)
-    {
-        return grid[x, y];
-    }
-
-    void GenerateGrid()
+    public void GenerateGrid()
     {
         grid = new Cell[width, height];
 
@@ -60,6 +52,24 @@ public class GridManager : MonoBehaviour
                 grid[x, y] = cellScript;
             }
         }
+    }
+
+    public List<Cell> GetTopCells()
+    {
+        List<Cell> cells = new List<Cell>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = height - 2; y < height; y++)
+            {
+                Cell cell = GetCell(x, y);
+
+                if (!cell.isOccupied)
+                    cells.Add(cell);
+            }
+        }
+
+        return cells;
     }
 
     public void HighlightPlacementCells()

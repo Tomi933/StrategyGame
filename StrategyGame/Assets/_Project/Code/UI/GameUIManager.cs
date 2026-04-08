@@ -11,7 +11,6 @@ namespace Assets._Project.Code.UI
 
         private SpawnUnitButton _currentSelected;
 
-
         private Unit _selectedUnit;
         private List<Cell> _availableCells = new List<Cell>();
 
@@ -23,10 +22,10 @@ namespace Assets._Project.Code.UI
 
         [SerializeField] private GameObject modesPanel;
 
+        private bool _canClickUnits = true;
 
         private void Start()
         {
-
             foreach (var item in spawnUnitButtons)
             {
                 item.NameText.text = item.UnitConfig.Name;
@@ -68,12 +67,10 @@ namespace Assets._Project.Code.UI
             }
 
             modesPanel.SetActive(false);
-
         }
 
         private void Update()
         {
-            
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                 return;
 
@@ -180,7 +177,7 @@ namespace Assets._Project.Code.UI
             ClearSelection();
 
             _selectedUnit = unit;
-            _availableCells = unit.GetAvailableCells(GridManager);
+            _availableCells = unit.GetAvailableCellsFor(GridManager, UnitMoveType.Cross);
 
             foreach (var cell in _availableCells)
                 cell.SetMoveColor();
@@ -251,9 +248,17 @@ namespace Assets._Project.Code.UI
                 btn.SetHighlight(btn.Mode == mode);
         }
 
+        public void EnablePlayerControls(bool enabled)
+        {
+            EnableActions(enabled);
+            _canClickUnits = enabled;
+        }
 
-
-
+        private void EnableActions(bool enabled)
+        {
+            foreach (var btn in actionButtons)
+                btn.SetActive(enabled);
+        }
     }
 }
 
