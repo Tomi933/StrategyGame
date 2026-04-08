@@ -11,3 +11,9 @@ public enum ActionMode
     Attack,
     Scan
 }
+
+public enum Team
+{
+    Player,
+    Enemy
+}

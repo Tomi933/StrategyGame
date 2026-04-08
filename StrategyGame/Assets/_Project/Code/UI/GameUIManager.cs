@@ -73,12 +73,12 @@ namespace Assets._Project.Code.UI
 
         private void Update()
         {
-            // щоб не клікати крізь UI
+            
             if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                 return;
 
-            HandleUnitPlacement(); // твоя стара логіка (спавн)
-            HandleUnitMovement();  // нова логіка (рух)
+            HandleUnitPlacement();
+            HandleUnitAction();
         }
 
         void HandleUnitPlacement()
@@ -124,7 +124,7 @@ namespace Assets._Project.Code.UI
             }
         }
 
-        void HandleUnitMovement()
+        void HandleUnitAction()
         {
             if (_isPlacementPhase) return;
 
@@ -147,6 +147,8 @@ namespace Assets._Project.Code.UI
                 {
                     if (_mode == ActionMode.Move)
                         SelectUnit(unit);
+                    if (_mode == ActionMode.Attack)
+                        SelectUnitForAttack(unit);
                     return;
                 }
                 // клік по клітинці
@@ -154,9 +156,18 @@ namespace Assets._Project.Code.UI
                 {
                     if (_selectedUnit == null) return;
 
-                    if (_availableCells.Contains(cell))
+                    if (_mode == ActionMode.Move)
                     {
-                        _selectedUnit.MoveTo(cell);
+                        if (_availableCells.Contains(cell))
+                            _selectedUnit.MoveTo(cell);
+                    }
+
+                    if (_mode == ActionMode.Attack)
+                    {
+                        Unit target = cell.GetComponentInChildren<Unit>();
+
+                        if (target != null)
+                            _selectedUnit.Attack(target);
                     }
 
                     ClearSelection();
@@ -173,6 +184,40 @@ namespace Assets._Project.Code.UI
 
             foreach (var cell in _availableCells)
                 cell.SetMoveColor();
+        }
+
+        void SelectUnitForAttack(Unit unit)
+        {
+            ClearSelection();
+
+            _selectedUnit = unit;
+            _availableCells = unit.GetAttackCells(GridManager);
+
+            foreach (var cell in _availableCells)
+            {
+                Unit target = cell.GetComponentInChildren<Unit>();
+
+                if (target == null)
+                {
+                    cell.SetAttackColor();
+                    continue;
+                }
+
+                if (target == _selectedUnit)
+                {
+                    cell.SetAttackColor();
+                    continue;
+                }
+
+                if (target.team != _selectedUnit.team)
+                {
+                    cell.SetEnemyColor();
+                }
+                else
+                {
+                    cell.SetAttackColor();
+                }
+            }
         }
 
         void ClearSelection()

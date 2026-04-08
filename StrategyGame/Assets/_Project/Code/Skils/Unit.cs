@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class Unit : MonoBehaviour
 {
+    public Team team;
+
     public int maxHP = 10;
     public int currentHP;
 
@@ -11,6 +14,8 @@ public class Unit : MonoBehaviour
 
     public int moveRange = 2; 
     public Cell currentCell;
+
+    public int scanRange = 3;
 
     private void Start()
     {
@@ -34,7 +39,15 @@ public class Unit : MonoBehaviour
 
     void Die()
     {
-        currentCell.isOccupied = false;
+        if (currentCell == null)
+        {
+            Debug.LogError("Unit помирає без currentCell!");
+        }
+        else
+        {
+            currentCell.isOccupied = false;
+        }
+
         Destroy(gameObject);
     }
 
@@ -48,6 +61,9 @@ public class Unit : MonoBehaviour
         {
             for (int y = -moveRange; y <= moveRange; y++)
             {
+                if (Mathf.Abs(x) + Mathf.Abs(y) > moveRange)
+                    continue;
+
                 int checkX = currentCell.x + x;
                 int checkY = currentCell.y + y;
 
@@ -65,6 +81,82 @@ public class Unit : MonoBehaviour
         return result;
     }
 
+    public List<Cell> GetAttackCells(GridManager grid)
+    {
+        List<Cell> result = new List<Cell>();
+
+        for (int x = -attackRange; x <= attackRange; x++)
+        {
+            for (int y = -attackRange; y <= attackRange; y++)
+            {
+                if (Mathf.Abs(x) + Mathf.Abs(y) > attackRange)
+                    continue;
+
+                int checkX = currentCell.x + x;
+                int checkY = currentCell.y + y;
+
+                if (checkX >= 0 && checkX < grid.width &&
+                    checkY >= 0 && checkY < grid.height)
+                {
+                    Cell cell = grid.GetCell(checkX, checkY);
+
+                    result.Add(cell);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<Cell> GetScanCells(GridManager grid)
+    {
+        List<Cell> result = new List<Cell>();
+
+        for (int x = -scanRange; x <= scanRange; x++)
+        {
+            for (int y = -scanRange; y <= scanRange; y++)
+            {
+                if (Mathf.Abs(x) + Mathf.Abs(y) > scanRange)
+                    continue;
+
+                int checkX = currentCell.x + x;
+                int checkY = currentCell.y + y;
+
+                if (checkX >= 0 && checkX < grid.width &&
+                    checkY >= 0 && checkY < grid.height)
+                {
+                    Cell cell = grid.GetCell(checkX, checkY);
+
+                    if (!cell.isOccupied)
+                        result.Add(cell);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<Unit> GetAttackTargets(GridManager grid)
+    {
+        List<Unit> targets = new List<Unit>();
+
+        var cells = GetAttackCells(grid);
+
+        foreach (var cell in cells)
+        {
+            if (cell.isOccupied)
+            {
+                Unit unit = cell.GetComponentInChildren<Unit>();
+
+                if (unit != null && unit != this && unit.team != this.team)
+                {
+                    targets.Add(unit);
+                }
+            }
+        }
+
+        return targets;
+    }
 
     public void MoveTo(Cell targetCell)
     {
@@ -75,5 +167,10 @@ public class Unit : MonoBehaviour
 
         targetCell.isOccupied = true;
         currentCell = targetCell;
+    }
+
+    public void Attack(Unit target)
+    {
+        target.TakeDamage(damage);
     }
 }

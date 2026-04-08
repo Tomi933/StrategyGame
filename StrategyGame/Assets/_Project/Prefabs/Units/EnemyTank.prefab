@@ -45,8 +45,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6af13875cb6cf144a960612340b1d95b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  team: 1
+  maxHP: 10
+  currentHP: 0
+  damage: 3
+  attackRange: 1
   moveRange: 3
   currentCell: {fileID: 0}
+  scanRange: 3
 --- !u!1 &8246066901464903472
 GameObject:
   m_ObjectHideFlags: 0

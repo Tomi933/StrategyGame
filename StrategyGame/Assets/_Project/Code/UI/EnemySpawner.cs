@@ -20,7 +20,19 @@ public class EnemySpawner : MonoBehaviour
                 int cellIndex = Random.Range(0, availableCells.Count);
                 Cell cell = availableCells[cellIndex];
 
-                Instantiate(enemy.UnitConfig.Prefab, cell.transform);
+                var unitGO = Instantiate(enemy.UnitConfig.Prefab);
+
+
+                unitGO.transform.position = cell.transform.position;
+
+                
+                unitGO.transform.SetParent(cell.transform, true);
+                unitGO.transform.localScale = Vector3.one;
+
+                var unit = unitGO.GetComponent<Unit>();
+                unit.Init(cell);
+                unit.team = Team.Enemy;
+
                 cell.isOccupied = true;
 
                 availableCells.RemoveAt(cellIndex);

@@ -22,9 +22,14 @@ public class Cell : MonoBehaviour
         BackgroundSpriteRenderer.color = BaseColor;
     }
 
-    public void SetAttackColor()
+    public void SetEnemyColor()
     {
         BackgroundSpriteRenderer.color = Color.red;
+    }
+
+    public void SetAttackColor()
+    {
+        BackgroundSpriteRenderer.color = Color.yellow;
     }
 
     public void ResetColor()
