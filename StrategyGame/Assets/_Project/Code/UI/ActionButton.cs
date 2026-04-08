@@ -24,6 +24,7 @@ namespace Assets._Project.Code.UI
         void OnClick()
         {
             _uiManager.SetMode(Mode);
+            Debug.Log("Mode: " + Mode);
         }
 
         public void SetActive(bool active)

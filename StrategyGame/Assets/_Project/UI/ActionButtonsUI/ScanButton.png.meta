@@ -235,7 +235,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      ScanButton_0: 3216644021286213891
+      ScanButton_1: -1290846410548347016
+      ScanButton_2: -1666396804446211086
+      ScanButton_3: -6608783105033275979
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

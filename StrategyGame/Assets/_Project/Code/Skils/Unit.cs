@@ -3,13 +3,42 @@ using System.Collections.Generic;
 
 public class Unit : MonoBehaviour
 {
+    public int maxHP = 10;
+    public int currentHP;
+
+    public int damage = 3;
+    public int attackRange = 1;
+
     public int moveRange = 2; 
     public Cell currentCell;
+
+    private void Start()
+    {
+        currentHP = maxHP;
+    }
 
     public void Init(Cell cell)
     {
         currentCell = cell;
     }
+
+    public void TakeDamage(int dmg)
+    {
+        currentHP -= dmg;
+
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        currentCell.isOccupied = false;
+        Destroy(gameObject);
+    }
+
+
 
     public List<Cell> GetAvailableCells(GridManager grid)
     {
@@ -35,6 +64,7 @@ public class Unit : MonoBehaviour
 
         return result;
     }
+
 
     public void MoveTo(Cell targetCell)
     {
