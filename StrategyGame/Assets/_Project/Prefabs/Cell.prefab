@@ -242,6 +242,12 @@ MonoBehaviour:
   BaseColor:
     serializedVersion: 2
     rgba: 0
+  AttackColor:
+    serializedVersion: 2
+    rgba: 1510002431
+  EnemyColor:
+    serializedVersion: 2
+    rgba: 1241514239
   x: 0
   y: 0
   isOccupied: 0

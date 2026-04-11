@@ -15,3 +15,7 @@ MonoBehaviour:
   Name: Enemy Sniper
   Prefab: {fileID: 6465744498402855633, guid: 1b1ce6ea5fc849c489fddf1b4972738a, type: 3}
   Sprite: {fileID: -4275079280189478912, guid: 2b24b966cb1ea5241a26197dfa467826, type: 3}
+  MoveType: 0
+  Behavior: 1
+  MoveRange: 1
+  Health: 1

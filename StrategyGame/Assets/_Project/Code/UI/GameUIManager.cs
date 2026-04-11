@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Assets._Project.Code.Configs.Units;
+using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -7,24 +8,46 @@ namespace Assets._Project.Code.UI
     public class GameUIManager : MonoBehaviour
     {
         [SerializeField] public List<SpawnUnitButton> spawnUnitButtons = new List<SpawnUnitButton>();
-        public GridManager GridManager;
+        [SerializeField] private List<ActionButton> actionButtons;
+        [SerializeField] private GameObject modesPanel;
 
         private SpawnUnitButton _currentSelected;
+        private GridManager _gridManager;
 
         private Unit _selectedUnit;
         private List<Cell> _availableCells = new List<Cell>();
 
-
         private bool _isPlacementPhase = true;
-
-        [SerializeField] private List<ActionButton> actionButtons;
         private ActionMode _mode;
 
-        [SerializeField] private GameObject modesPanel;
 
-        private bool _canClickUnits = true;
+        private bool _isPlayerPerformAction = false;
 
-        private void Start()
+        public bool IsPlacemantEnded => !_isPlacementPhase;
+        public bool IsPlayerPerformAction => _isPlayerPerformAction;
+
+        public void Init(GridManager gridManager)
+        {
+            _gridManager = gridManager;
+
+            ClearPlayerPerformAction();
+            PrepareUnitSpawnButtons();
+        }
+
+
+        private void Update()
+        {
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            HandleUnitPlacement();
+            HandleUnitAction();
+        }
+
+        public void ClearPlayerPerformAction() =>
+            _isPlayerPerformAction = false;
+
+        private void PrepareUnitSpawnButtons()
         {
             foreach (var item in spawnUnitButtons)
             {
@@ -42,20 +65,20 @@ namespace Assets._Project.Code.UI
                         if (_currentSelected == item)
                         {
                             _currentSelected = null;
-                            GridManager.UnHighlightPlacementCells();
+                            _gridManager.UnHighlightPlacementCells();
                         }
                         else
                         {
                             _currentSelected = item;
                             _currentSelected.HighlightFrame.gameObject.SetActive(true);
-                            GridManager.HighlightPlacementCells();
+                            _gridManager.HighlightPlacementCells();
                         }
                     }
                     else
                     {
                         _currentSelected = item;
                         item.HighlightFrame.gameObject.SetActive(true);
-                        GridManager.HighlightPlacementCells();
+                        _gridManager.HighlightPlacementCells();
                     }
                 });
             }
@@ -69,16 +92,8 @@ namespace Assets._Project.Code.UI
             modesPanel.SetActive(false);
         }
 
-        private void Update()
-        {
-            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-                return;
 
-            HandleUnitPlacement();
-            HandleUnitAction();
-        }
-
-        void HandleUnitPlacement()
+        private void HandleUnitPlacement()
         {
             if (!_isPlacementPhase) return;
             if (_currentSelected == null) return;
@@ -96,7 +111,7 @@ namespace Assets._Project.Code.UI
                         var unitGO = Instantiate(_currentSelected.UnitConfig.Prefab, cellScript.transform);
 
                         var unit = unitGO.GetComponent<Unit>();
-                        unit.Init(cellScript);
+                        unit.Init(cellScript, _currentSelected.UnitConfig);
 
                         cellScript.isOccupied = true;
 
@@ -106,13 +121,11 @@ namespace Assets._Project.Code.UI
                         {
                             spawnUnitButtons.Remove(_currentSelected);
                             Destroy(_currentSelected.Button.gameObject);
-                            GridManager.UnHighlightPlacementCells();
+                            _gridManager.UnHighlightPlacementCells();
                             _currentSelected = null;
 
                             if (spawnUnitButtons.Count == 0)
-                            {
                                 EndPlacementPhase();
-                            }
                         }
                         else
                             _currentSelected.UnitCountText.text = _currentSelected.UnitCount.ToString();
@@ -121,7 +134,7 @@ namespace Assets._Project.Code.UI
             }
         }
 
-        void HandleUnitAction()
+        private void HandleUnitAction()
         {
             if (_isPlacementPhase) return;
 
@@ -132,23 +145,29 @@ namespace Assets._Project.Code.UI
                 Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Collider2D hit = Physics2D.OverlapPoint(mousePosition);
                 
-                // Клік в пустоту
                 if (hit == null)
                 {
                     ClearSelection();
                     return;
                 }
 
-                // клік по юніту
                 if (hit.TryGetComponent(out Unit unit))
                 {
                     if (_mode == ActionMode.Move)
-                        SelectUnit(unit);
+                    {
+                        if (unit.Config.Behavior == UnitBehavior.Static)
+                        {
+                            ClearSelection();
+                            return;
+                        }
+
+                        SelectUnitForMove(unit);
+                    }
                     if (_mode == ActionMode.Attack)
                         SelectUnitForAttack(unit);
                     return;
                 }
-                // клік по клітинці
+
                 if (hit.TryGetComponent(out Cell cell))
                 {
                     if (_selectedUnit == null) return;
@@ -167,28 +186,30 @@ namespace Assets._Project.Code.UI
                             _selectedUnit.Attack(target);
                     }
 
+                    _isPlayerPerformAction = true;
+
                     ClearSelection();
                 }
             }
         }
 
-        void SelectUnit(Unit unit)
+        private void SelectUnitForMove(Unit unit)
         {
             ClearSelection();
 
             _selectedUnit = unit;
-            _availableCells = unit.GetAvailableCellsFor(GridManager, UnitMoveType.Cross);
+            _availableCells = unit.FindAvailableCellsForMove(_gridManager);
 
             foreach (var cell in _availableCells)
                 cell.SetMoveColor();
         }
 
-        void SelectUnitForAttack(Unit unit)
+        private void SelectUnitForAttack(Unit unit)
         {
             ClearSelection();
 
             _selectedUnit = unit;
-            _availableCells = unit.GetAttackCells(GridManager);
+            _availableCells = unit.GetAttackCells(_gridManager, unit.team);
 
             foreach (var cell in _availableCells)
             {
@@ -217,7 +238,7 @@ namespace Assets._Project.Code.UI
             }
         }
 
-        void ClearSelection()
+        private void ClearSelection()
         {
             foreach (var cell in _availableCells)
                 cell.SetBaseColor();
@@ -225,11 +246,11 @@ namespace Assets._Project.Code.UI
             _availableCells.Clear();
             _selectedUnit = null;
         }
-        void EndPlacementPhase()
+        private void EndPlacementPhase()
         {
             _isPlacementPhase = false;
 
-            GridManager.UnHighlightPlacementCells();
+            _gridManager.UnHighlightPlacementCells();
             ClearSelection();
 
             modesPanel.SetActive(true);
@@ -239,6 +260,7 @@ namespace Assets._Project.Code.UI
 
             SetMode(ActionMode.Move);
         }
+
         public void SetMode(ActionMode mode)
         {
             _mode = mode;
@@ -248,11 +270,11 @@ namespace Assets._Project.Code.UI
                 btn.SetHighlight(btn.Mode == mode);
         }
 
-        public void EnablePlayerControls(bool enabled)
-        {
-            EnableActions(enabled);
-            _canClickUnits = enabled;
-        }
+        //public void EnablePlayerControls(bool enabled)
+        //{
+        //    EnableActions(enabled);
+        //    _canClickUnits = enabled;
+        //}
 
         private void EnableActions(bool enabled)
         {

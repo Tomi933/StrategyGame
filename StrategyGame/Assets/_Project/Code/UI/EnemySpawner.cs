@@ -26,7 +26,7 @@ public class EnemySpawner : MonoBehaviour
                 unitGO.transform.localScale = Vector3.one;
 
                 var unit = unitGO.GetComponent<Unit>();
-                unit.Init(cell);
+                unit.Init(cell, enemy.UnitConfig);
                 unit.team = Team.Enemy;
 
                 cell.isOccupied = true;

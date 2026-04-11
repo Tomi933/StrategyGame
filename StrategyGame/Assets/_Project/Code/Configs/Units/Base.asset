@@ -15,3 +15,7 @@ MonoBehaviour:
   Name: Base
   Prefab: {fileID: 2502523263007546689, guid: 959c4cb480d00b94792e65d4890fdceb, type: 3}
   Sprite: {fileID: 7229546988516952091, guid: 6799e893df46dfa45954a4a46a2360ac, type: 3}
+  MoveType: 0
+  Behavior: 0
+  MoveRange: 1
+  Health: 20

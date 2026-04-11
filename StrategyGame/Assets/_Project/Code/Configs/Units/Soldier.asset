@@ -15,3 +15,7 @@ MonoBehaviour:
   Name: Soldier
   Prefab: {fileID: 4795720485381577801, guid: d6314aa9741338345995382d36a7af75, type: 3}
   Sprite: {fileID: 45824592028852521, guid: d7c26352e96c9dc4396b10977dd9aa0e, type: 3}
+  MoveType: 0
+  Behavior: 1
+  MoveRange: 1
+  Health: 10

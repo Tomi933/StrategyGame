@@ -72,6 +72,7 @@ public class GridManager : MonoBehaviour
         return cells;
     }
 
+
     public void HighlightPlacementCells()
     {
         for (int x = 0; x < width; x++)

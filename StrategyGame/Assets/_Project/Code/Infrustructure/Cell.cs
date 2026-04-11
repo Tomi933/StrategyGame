@@ -5,11 +5,14 @@ public class Cell : MonoBehaviour
     public SpriteRenderer BackgroundSpriteRenderer;
     public Color32 HighlightColor;
     public Color32 BaseColor;
+    public Color32 AttackColor;
+    public Color32 EnemyColor;
 
     public int x;
     public int y;
 
-    public bool isOccupied = false;
+    [HideInInspector] public bool isOccupied = false;
+    [HideInInspector] public Unit unit;
     public bool isForStartDistribution = false;
 
     public void SetMoveColor()
@@ -24,12 +27,12 @@ public class Cell : MonoBehaviour
 
     public void SetEnemyColor()
     {
-        BackgroundSpriteRenderer.color = Color.red;
+        BackgroundSpriteRenderer.color = EnemyColor;
     }
 
     public void SetAttackColor()
     {
-        BackgroundSpriteRenderer.color = Color.yellow;
+        BackgroundSpriteRenderer.color = AttackColor;
     }
 
     public void ResetColor()

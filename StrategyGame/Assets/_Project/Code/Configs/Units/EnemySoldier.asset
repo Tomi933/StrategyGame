@@ -15,3 +15,7 @@ MonoBehaviour:
   Name: Enemy Soldier
   Prefab: {fileID: 4648541106095577468, guid: 3989c2350407c8248b658c1f362cd6cf, type: 3}
   Sprite: {fileID: 7250509036251774940, guid: 0b0c99977ed3740438038c05a1f430e2, type: 3}
+  MoveType: 0
+  Behavior: 1
+  MoveRange: 1
+  Health: 1
