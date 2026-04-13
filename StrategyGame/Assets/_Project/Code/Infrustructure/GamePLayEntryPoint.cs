@@ -1,5 +1,6 @@
 ﻿using Assets._Project.Code.UI;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,7 +30,7 @@ namespace Assets._Project.Code.Infrustructure
             GridManager.GenerateGrid();
             GameUIManager.Init(GridManager);
             BotAI.Init(GridManager);
-            TurnManager.Init(BotAI);
+            TurnManager.Init(BotAI, GameUIManager);
 
             EnemySpawner.SpawnEnemies(GridManager.GetTopCells());
 
@@ -46,6 +47,8 @@ namespace Assets._Project.Code.Infrustructure
                 Debug.Log("GameUIManager.IsPlayerPerformAction");
                 yield return new WaitUntil(() => GameUIManager.IsPlayerPerformAction);
 
+                GameUIManager.RefreshEnemyVisibility();
+
                 TurnManager.EndPlayerTurn();
                 GameUIManager.ClearPlayerPerformAction();
 
@@ -59,6 +62,5 @@ namespace Assets._Project.Code.Infrustructure
         {
             ExitButton.onClick.RemoveAllListeners();
         }
-
     }
 }

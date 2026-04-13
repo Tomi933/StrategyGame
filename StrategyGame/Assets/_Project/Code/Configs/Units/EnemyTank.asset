@@ -15,9 +15,12 @@ MonoBehaviour:
   Name: Enemy Tank
   Prefab: {fileID: 1101164578749993599, guid: f8597012695aab445a6af03bba82bef3, type: 3}
   Sprite: {fileID: -8386309150267452716, guid: 3c769387ea7801b479fcc3c45c298fcb, type: 3}
-  MoveType: 0
+  MoveType: 2
+  AttackType: 2
+  ScanType: 0
   Behavior: 1
   MoveRange: 1
-  Health: 1
-  damage: 3
-  attackRange: 1
+  Health: 15
+  damage: 8
+  attackRange: 3
+  scanRange: 3

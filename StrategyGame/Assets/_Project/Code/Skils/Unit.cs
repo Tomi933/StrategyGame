@@ -6,19 +6,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-public enum UnitMoveType { Cross, Circle }
-public enum UnitAttackType { Cross, Circle }
+public enum UnitMoveType { Cross, Stick, Star }
+public enum UnitAttackType { Splash, Star, SubCross }
+public enum UnitScanType { Star, Circle }
 
 public class Unit : MonoBehaviour
 {
     [SerializeField] private HealthBarUI _healthBar;
+    [SerializeField] private GameObject _model;
 
     public Team team;
     public UnitConfigSO Config => _unitConfig;
 
     [HideInInspector] public Cell currentCell;
-
-    public int scanRange = 3;
 
     private UnitConfigSO _unitConfig;
 
@@ -43,167 +43,202 @@ public class Unit : MonoBehaviour
     public void TakeDamage(float dmg) => 
         _healthBar.Reduce(dmg);
 
+ 
     public List<Cell> FindAvailableCellsForMove(GridManager grid)
     {
         List<Cell> result = new List<Cell>();
         var moveRange = _unitConfig.MoveRange;
 
-        for (int x = -moveRange; x <= moveRange; x++)
+        switch (_unitConfig.MoveType)
         {
-            for (int y = -moveRange; y <= moveRange; y++)
-            {
-                int checkX;
-                int checkY;
-
-                if (_unitConfig.MoveType == UnitMoveType.Cross)
+            case UnitMoveType.Cross:
+                // Тільки по горизонталі або вертикалі, залежно від радіусу
+                for (int i = -moveRange; i <= moveRange; i++)
                 {
-                    if (x == 0 && y == 0) continue;
-
-                    if (x != 0 && y != 0) continue;
-
-                    checkX = currentCell.x + x;
-                    checkY = currentCell.y + y;
-
-                    if (checkX >= 0 && checkX < grid.width &&
-                        checkY >= 0 && checkY < grid.height)
-                    {
-                        Cell cell = grid.GetCell(checkX, checkY);
-
-                        if (!cell.isOccupied)
-                            result.Add(cell);
-                    }
+                    if (i == 0) continue;
+                    TryAddCell(grid, result, currentCell.x + i, currentCell.y); // горизонталь
+                    TryAddCell(grid, result, currentCell.x, currentCell.y + i); // вертикаль
                 }
-                else
+                break;
+
+            case UnitMoveType.Stick:
+                // Зверху 2, знизу 2 — фіксовано
+                TryAddCell(grid, result, currentCell.x, currentCell.y + 1);
+                TryAddCell(grid, result, currentCell.x, currentCell.y + 2);
+                TryAddCell(grid, result, currentCell.x, currentCell.y - 1);
+                // По боках по 1 — фіксовано
+                TryAddCell(grid, result, currentCell.x - 1, currentCell.y);
+                TryAddCell(grid, result, currentCell.x + 1, currentCell.y);
+                break;
+
+            case UnitMoveType.Star:
+                // По горизонталі та вертикалі залежно від радіусу
+                for (int i = -moveRange; i <= moveRange; i++)
                 {
-                    if (Mathf.Abs(x) + Mathf.Abs(y) > moveRange)
-                        continue;
-
-                     checkX = currentCell.x + x;
-                     checkY = currentCell.y + y;
-
-                    if (checkX >= 0 && checkX < grid.width &&
-                        checkY >= 0 && checkY < grid.height)
-                    {
-                        Cell cell = grid.GetCell(checkX, checkY);
-
-                        if (!cell.isOccupied)
-                            result.Add(cell);
-                    }
+                    if (i == 0) continue;
+                    TryAddCell(grid, result, currentCell.x + i, currentCell.y); // горизонталь
+                    TryAddCell(grid, result, currentCell.x, currentCell.y + i); // вертикаль
                 }
-            }
+                // По діагоналях залежно від радіусу
+                for (int i = 1; i <= moveRange; i++)
+                {
+                    TryAddCell(grid, result, currentCell.x + i, currentCell.y + i); // ↗
+                    TryAddCell(grid, result, currentCell.x + i, currentCell.y - i); // ↘
+                    TryAddCell(grid, result, currentCell.x - i, currentCell.y + i); // ↖
+                    TryAddCell(grid, result, currentCell.x - i, currentCell.y - i); // ↙
+                }
+                break;
         }
 
         return result;
     }
 
+    private void TryAddCell(GridManager grid, List<Cell> result, int x, int y)
+    {
+        if (x >= 0 && x < grid.width && y >= 0 && y < grid.height)
+        {
+            Cell cell = grid.GetCell(x, y);
+            if (!cell.isOccupied)
+                result.Add(cell);
+        }
+    }
 
     public List<Cell> GetAttackCells(GridManager grid, Team team)
     {
         List<Cell> result = new List<Cell>();
+        var range = Config.attackRange;
 
-        for (int x = -Config.attackRange; x <= Config.attackRange; x++)
+        switch (Config.AttackType)
         {
-            for (int y = -Config.attackRange; y <= Config.attackRange; y++)
-            {
-                int checkX;
-                int checkY;
-
-                if (Config.AttackType == UnitAttackType.Cross)
+            case UnitAttackType.Splash:
+                // По горизонталі та вертикалі на 1 клітинку навколо
+                for (int i = -1; i <= 1; i++)
                 {
-                    if (x == 0 && y == 0) continue;
-
-                    if (x != 0 && y != 0) continue;
-
-                    checkX = currentCell.x + x;
-                    checkY = currentCell.y + y;
-
-                    if (checkX >= 0 && checkX < grid.width &&
-                        checkY >= 0 && checkY < grid.height)
-                    {
-                        Cell cell = grid.GetCell(checkX, checkY);
-
-                        if (cell == currentCell) continue;
-
-                        if (cell.unit != null && cell.unit.team == team) continue;
-
-                        result.Add(cell);
-                    }
+                    if (i == 0) continue;
+                    TryAddAttackCell(grid, team, result, currentCell.x + i, currentCell.y); // горизонталь ±1
+                    TryAddAttackCell(grid, team, result, currentCell.x, currentCell.y + i); // вертикаль ±1
                 }
-                else
+                // По горизонталі та вертикалі на 2 клітинки
+                TryAddAttackCell(grid, team, result, currentCell.x + 2, currentCell.y); // право 2
+                TryAddAttackCell(grid, team, result, currentCell.x - 2, currentCell.y); // ліво 2
+                TryAddAttackCell(grid, team, result, currentCell.x, currentCell.y + 2); // верх 2
+                TryAddAttackCell(grid, team, result, currentCell.x, currentCell.y - 2); // низ 2
+                break;
+
+            case UnitAttackType.SubCross:
+                // Хрест залежно від радіусу по горизонталі та вертикалі
+                for (int i = -range; i <= range; i++)
                 {
-                    if (Mathf.Abs(x) + Mathf.Abs(y) > Config.attackRange)
-                        continue;
-
-                    checkX = currentCell.x + x;
-                    checkY = currentCell.y + y;
-
-                    if (checkX >= 0 && checkX < grid.width &&
-                        checkY >= 0 && checkY < grid.height)
-                    {
-                        Cell cell = grid.GetCell(checkX, checkY);
-
-                        if (cell == currentCell) continue;
-
-                        if (cell.unit != null && cell.unit.team == team) continue;
-
-                        result.Add(cell);
-                    }
+                    if (i == 0) continue;
+                    TryAddAttackCell(grid, team, result, currentCell.x + i, currentCell.y); // горизонталь
+                    TryAddAttackCell(grid, team, result, currentCell.x, currentCell.y + i); // вертикаль
                 }
-            }
+                // Кути: {±range, ±range}
+                TryAddAttackCell(grid, team, result, currentCell.x + range, currentCell.y + range); // ↗
+                TryAddAttackCell(grid, team, result, currentCell.x - range, currentCell.y + range); // ↖
+                TryAddAttackCell(grid, team, result, currentCell.x + range, currentCell.y - range); // ↘
+                TryAddAttackCell(grid, team, result, currentCell.x - range, currentCell.y - range); // ↙
+                break;
+
+            case UnitAttackType.Star:
+                // По горизонталі та вертикалі залежно від радіусу
+                for (int i = -range; i <= range; i++)
+                {
+                    if (i == 0) continue;
+                    TryAddAttackCell(grid, team, result, currentCell.x + i, currentCell.y); // горизонталь
+                    TryAddAttackCell(grid, team, result, currentCell.x, currentCell.y + i); // вертикаль
+                }
+                // По діагоналях залежно від радіусу
+                for (int i = 1; i <= range; i++)
+                {
+                    TryAddAttackCell(grid, team, result, currentCell.x + i, currentCell.y + i); // ↗
+                    TryAddAttackCell(grid, team, result, currentCell.x + i, currentCell.y - i); // ↘
+                    TryAddAttackCell(grid, team, result, currentCell.x - i, currentCell.y + i); // ↖
+                    TryAddAttackCell(grid, team, result, currentCell.x - i, currentCell.y - i); // ↙
+                }
+                break;
         }
 
         return result;
+    }
+
+    private void TryAddAttackCell(GridManager grid, Team team, List<Cell> result, int x, int y)
+    {
+        if (x < 0 || x >= grid.width || y < 0 || y >= grid.height) return;
+        Cell cell = grid.GetCell(x, y);
+        if (cell == currentCell) return;
+        if (cell.unit != null && cell.unit.team == team) return;
+        result.Add(cell);
     }
 
     public List<Cell> GetScanCells(GridManager grid)
     {
         List<Cell> result = new List<Cell>();
+        var scanRange = Mathf.Max(1, Config.scanRange);
 
-        for (int x = -scanRange; x <= scanRange; x++)
+        switch (_unitConfig.ScanType)
         {
-            for (int y = -scanRange; y <= scanRange; y++)
-            {
-                if (Mathf.Abs(x) + Mathf.Abs(y) > scanRange)
-                    continue;
-
-                int checkX = currentCell.x + x;
-                int checkY = currentCell.y + y;
-
-                if (checkX >= 0 && checkX < grid.width &&
-                    checkY >= 0 && checkY < grid.height)
+            case UnitScanType.Star:
+                // По горизонталі та вертикалі + діагоналі залежно від радіусу
+                for (int i = -scanRange; i <= scanRange; i++)
                 {
-                    Cell cell = grid.GetCell(checkX, checkY);
-
-                    if (!cell.isOccupied)
-                        result.Add(cell);
+                    if (i == 0) continue;
+                    TryAddScanCell(grid, result, currentCell.x + i, currentCell.y); // горизонталь
+                    TryAddScanCell(grid, result, currentCell.x, currentCell.y + i); // вертикаль
                 }
-            }
+                for (int i = 1; i <= scanRange; i++)
+                {
+                    TryAddScanCell(grid, result, currentCell.x + i, currentCell.y + i); // ↗
+                    TryAddScanCell(grid, result, currentCell.x + i, currentCell.y - i); // ↘
+                    TryAddScanCell(grid, result, currentCell.x - i, currentCell.y + i); // ↖
+                    TryAddScanCell(grid, result, currentCell.x - i, currentCell.y - i); // ↙
+                }
+                break;
+
+            case UnitScanType.Circle:
+                // Квадратна рамка: всі клітинки де Max(|x|,|y|) <= scanRange
+                for (int x = -scanRange; x <= scanRange; x++)
+                {
+                    for (int y = -scanRange; y <= scanRange; y++)
+                    {
+                        if (x == 0 && y == 0) continue;
+                        TryAddScanCell(grid, result, currentCell.x + x, currentCell.y + y);
+                    }
+                }
+                break;
         }
 
         return result;
     }
 
-    public List<Unit> GetAttackTargets(GridManager grid, Team team)
+    private void TryAddScanCell(GridManager grid, List<Cell> result, int x, int y)
     {
-        List<Unit> targets = new List<Unit>();
-
-        var cells = GetAttackCells(grid, team);
-
-        foreach (var cell in cells)
-        {
-            if (cell.isOccupied)
-            {
-                Unit unit = cell.GetComponentInChildren<Unit>();
-
-                if (unit != null && unit != this && unit.team != this.team)
-                {
-                    targets.Add(unit);
-                }
-            }
-        }
-
-        return targets;
+        if (x < 0 || x >= grid.width || y < 0 || y >= grid.height) return;
+        result.Add(grid.GetCell(x, y));
     }
+
+
+    //public List<Unit> GetAttackTargets(GridManager grid, Team team)
+    //{
+    //    List<Unit> targets = new List<Unit>();
+
+    //    var cells = GetAttackCells(grid, team);
+
+    //    foreach (var cell in cells)
+    //    {
+    //        if (cell.isOccupied)
+    //        {
+    //            Unit unit = cell.GetComponentInChildren<Unit>();
+
+    //            if (unit != null && unit != this && unit.team != this.team)
+    //            {
+    //                targets.Add(unit);
+    //            }
+    //        }
+    //    }
+
+    //    return targets;
+    //}
 
     public void MoveTo(Cell targetCell)
     {
@@ -234,6 +269,11 @@ public class Unit : MonoBehaviour
                 targets.Add(unit);
         }
         return targets;
+    }
+
+    public void SetModelVisible(bool visible)
+    {
+        _model.SetActive(visible);
     }
 
     private void OnDestroy()

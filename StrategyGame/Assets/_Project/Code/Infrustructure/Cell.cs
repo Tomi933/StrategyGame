@@ -7,6 +7,8 @@ public class Cell : MonoBehaviour
     public Color32 BaseColor;
     public Color32 AttackColor;
     public Color32 EnemyColor;
+    public Color32 ScanColor;
+    public Color32 ScanEnemyColor;
 
     public int x;
     public int y;
@@ -33,6 +35,16 @@ public class Cell : MonoBehaviour
     public void SetAttackColor()
     {
         BackgroundSpriteRenderer.color = AttackColor;
+    }
+
+    public void SetScanColor()
+    {
+        BackgroundSpriteRenderer.color = ScanColor;
+    }
+
+    public void SetScanEnemyColor()
+    {
+        BackgroundSpriteRenderer.color = ScanEnemyColor;
     }
 
     public void ResetColor()

@@ -20,6 +20,7 @@ namespace Assets._Project.Code.Configs.Units
         [Header("Base")]
         public UnitMoveType MoveType;
         public UnitAttackType AttackType;
+        public UnitScanType ScanType;
         public UnitBehavior Behavior;
         [Range(1, 10)] public int MoveRange;
         [Range(1f, 20f)] public float Health;
@@ -27,5 +28,8 @@ namespace Assets._Project.Code.Configs.Units
         [Header("Attack")]
         [Range(1, 20)] public float damage = 3;
         [Range(1f, 10f)] public int attackRange = 1;
+
+        [Header("Scan")]
+        [Range(1, 5)] public int scanRange = 1;
     }
 }

@@ -16,6 +16,11 @@ MonoBehaviour:
   Prefab: {fileID: 8588697649277467000, guid: 786d150f25c9a4c42b027fa9c9110442, type: 3}
   Sprite: {fileID: 7691749466728003701, guid: eae8079c613d95f4dbb9617773107497, type: 3}
   MoveType: 0
+  AttackType: 1
+  ScanType: 0
   Behavior: 1
-  MoveRange: 1
-  Health: 1
+  MoveRange: 3
+  Health: 8
+  damage: 10
+  attackRange: 1
+  scanRange: 4

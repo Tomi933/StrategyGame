@@ -32,6 +32,8 @@ public class EnemySpawner : MonoBehaviour
                 cell.isOccupied = true;
 
                 availableCells.RemoveAt(cellIndex);
+
+                unit.SetModelVisible(false);
             }
         }
     }

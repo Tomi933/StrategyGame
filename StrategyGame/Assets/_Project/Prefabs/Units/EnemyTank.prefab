@@ -47,11 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _healthBar: {fileID: 1532721962514849701}
+  _model: {fileID: 8246066901464903472}
   team: 1
-  damage: 3
-  attackRange: 1
   currentCell: {fileID: 0}
-  scanRange: 3
 --- !u!1 &8246066901464903472
 GameObject:
   m_ObjectHideFlags: 0

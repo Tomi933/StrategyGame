@@ -248,7 +248,14 @@ MonoBehaviour:
   EnemyColor:
     serializedVersion: 2
     rgba: 1241514239
+  ScanColor:
+    serializedVersion: 2
+    rgba: 2229317449
+  ScanEnemyColor:
+    serializedVersion: 2
+    rgba: 1893418448
   x: 0
   y: 0
   isOccupied: 0
+  unit: {fileID: 0}
   isForStartDistribution: 0

@@ -165,6 +165,8 @@ namespace Assets._Project.Code.UI
                     }
                     if (_mode == ActionMode.Attack)
                         SelectUnitForAttack(unit);
+                    if (_mode == ActionMode.Scan)
+                        SelectUnitForScan(unit);
                     return;
                 }
 
@@ -172,10 +174,17 @@ namespace Assets._Project.Code.UI
                 {
                     if (_selectedUnit == null) return;
 
+                    bool actionPerformed = false;
+
                     if (_mode == ActionMode.Move)
                     {
                         if (_availableCells.Contains(cell))
+                        {
                             _selectedUnit.MoveTo(cell);
+                            List<Unit> all = new List<Unit>(FindObjectsByType<Unit>(FindObjectsSortMode.None));
+                            UpdateEnemyVisibility(_selectedUnit, all, _gridManager);
+                            actionPerformed = true;
+                        }
                     }
 
                     if (_mode == ActionMode.Attack)
@@ -183,13 +192,34 @@ namespace Assets._Project.Code.UI
                         Unit target = cell.GetComponentInChildren<Unit>();
 
                         if (target != null)
+                        {
                             _selectedUnit.Attack(target);
+                            actionPerformed = true;
+                        }
                     }
 
-                    _isPlayerPerformAction = true;
+                    if (actionPerformed) 
+                        _isPlayerPerformAction = true;
 
                     ClearSelection();
                 }
+            }
+        }
+
+        private void UpdateEnemyVisibility(Unit playerUnit, List<Unit> allUnits, GridManager grid)
+        {
+            Debug.Log($"playerUnit: {playerUnit.name}, scanRange: {playerUnit.Config.scanRange}, scanType: {playerUnit.Config.ScanType}");
+            Debug.Log($"currentCell: {playerUnit.currentCell}, x:{playerUnit.currentCell?.x} y:{playerUnit.currentCell?.y}");
+
+            List<Cell> scanCells = playerUnit.GetScanCells(grid);
+            Debug.Log($"scanCells count: {scanCells.Count}");
+
+            foreach (var unit in allUnits)
+            {
+                if (unit.team == playerUnit.team) continue;
+                if (unit.currentCell == null) continue;
+                Debug.Log($"enemy: {unit.name}, currentCell: {unit.currentCell}, visible: {scanCells.Contains(unit.currentCell)}");
+                unit.SetModelVisible(scanCells.Contains(unit.currentCell));
             }
         }
 
@@ -238,6 +268,40 @@ namespace Assets._Project.Code.UI
             }
         }
 
+        private void SelectUnitForScan(Unit unit)
+        {
+            ClearSelection();
+
+            _selectedUnit = unit;
+            _availableCells = unit.GetScanCells(_gridManager);
+
+            foreach (var cell in _availableCells)
+            {
+                Unit target = cell.GetComponentInChildren<Unit>();
+
+                if (target == null)
+                {
+                    cell.SetScanColor();
+                    continue;
+                }
+
+                if (target == _selectedUnit)
+                {
+                    cell.SetScanColor();
+                    continue;
+                }
+
+                if (target.team != _selectedUnit.team)
+                {
+                    cell.SetScanEnemyColor();
+                }
+                else
+                {
+                    cell.SetScanColor();
+                }
+            }
+        }
+
         private void ClearSelection()
         {
             foreach (var cell in _availableCells)
@@ -280,6 +344,27 @@ namespace Assets._Project.Code.UI
         {
             foreach (var btn in actionButtons)
                 btn.SetActive(enabled);
+        }
+
+        public void RefreshEnemyVisibility()
+        {
+            List<Unit> all = new List<Unit>(FindObjectsByType<Unit>(FindObjectsSortMode.None));
+            HashSet<Cell> visibleCells = new HashSet<Cell>();
+
+            foreach (var unit in all)
+            {
+                if (unit.team != Team.Player) continue;
+                foreach (var cell in unit.GetScanCells(_gridManager))
+                    visibleCells.Add(cell);
+            }
+
+            
+            foreach (var unit in all)
+            {
+                if (unit.team == Team.Player) continue;
+                if (unit.currentCell == null) continue;
+                unit.SetModelVisible(visibleCells.Contains(unit.currentCell));
+            }
         }
     }
 }
