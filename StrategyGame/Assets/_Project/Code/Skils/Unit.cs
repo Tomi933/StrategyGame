@@ -22,6 +22,7 @@ public class Unit : MonoBehaviour
 
     private UnitConfigSO _unitConfig;
 
+    public event Action OnDiedEvent;
 
     public void Init(Cell cell, UnitConfigSO unitConfig)
     {
@@ -37,6 +38,7 @@ public class Unit : MonoBehaviour
     {
         currentCell.isOccupied = false;
         currentCell.unit = null;
+        OnDiedEvent?.Invoke();
         Destroy(gameObject);
     }
 
@@ -243,11 +245,13 @@ public class Unit : MonoBehaviour
     public void MoveTo(Cell targetCell)
     {
         currentCell.isOccupied = false;
+        currentCell.unit = null;
 
         transform.position = targetCell.transform.position;
         transform.SetParent(targetCell.transform);
 
         targetCell.isOccupied = true;
+        targetCell.unit = this;
         currentCell = targetCell;
     }
 

@@ -22,20 +22,18 @@ public class TurnManager : MonoBehaviour
     public void EndPlayerTurn()
     {
         if (CurrentTurn != TurnState.PlayerTurn) return;
-
         CurrentTurn = TurnState.BotTurn;
         StartCoroutine(BotTurnRoutine());
     }
 
     private IEnumerator BotTurnRoutine()
     {
-        yield return new WaitForSeconds(0.5f); // пауза для читабельності
+        _gameUIManager.SetPlayerTurn(false);
+        yield return new WaitForSeconds(0.5f); 
         _botAI.ExecuteTurn();
         _gameUIManager.RefreshEnemyVisibility();
         yield return new WaitForSeconds(0.5f);
-
-        
-
         CurrentTurn = TurnState.PlayerTurn;
+        _gameUIManager.SetPlayerTurn(true);
     }
 }

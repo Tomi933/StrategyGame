@@ -1,4 +1,5 @@
-﻿using Assets._Project.Code.UI;
+﻿using Assets._Project.Code.Configs.Units;
+using Assets._Project.Code.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Assets._Project.Code.Infrustructure
         public GameUIManager GameUIManager;
         public BotAI BotAI;
         public TurnManager TurnManager;
-
+        public GameOverUI GameOverUI;
 
         private void Awake()
         {
@@ -33,6 +34,7 @@ namespace Assets._Project.Code.Infrustructure
             TurnManager.Init(BotAI, GameUIManager);
 
             EnemySpawner.SpawnEnemies(GridManager.GetTopCells());
+            CheckBasesDeath();
 
             yield return null;
 
@@ -44,17 +46,28 @@ namespace Assets._Project.Code.Infrustructure
 
             while (true)
             {
-                Debug.Log("GameUIManager.IsPlayerPerformAction");
                 yield return new WaitUntil(() => GameUIManager.IsPlayerPerformAction);
-
                 GameUIManager.RefreshEnemyVisibility();
-
-                TurnManager.EndPlayerTurn();
                 GameUIManager.ClearPlayerPerformAction();
-
-                Debug.Log("TurnManager.EndPlayerTurn()");
-
+                TurnManager.EndPlayerTurn();
                 yield return new WaitForSeconds(1);
+            }
+        }
+
+        private void CheckBasesDeath()
+        {
+            var all = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+
+            foreach (var unit in all)
+            {
+                if (unit.Config.Behavior != UnitBehavior.Static) continue;
+
+                unit.OnDiedEvent += () =>
+                {
+                    bool playerWon = unit.team == Team.Enemy;
+                    GameOverUI.Show(playerWon);
+                    StopAllCoroutines();
+                };
             }
         }
 

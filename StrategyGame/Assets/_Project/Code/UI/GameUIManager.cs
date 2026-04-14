@@ -10,6 +10,7 @@ namespace Assets._Project.Code.UI
         [SerializeField] public List<SpawnUnitButton> spawnUnitButtons = new List<SpawnUnitButton>();
         [SerializeField] private List<ActionButton> actionButtons;
         [SerializeField] private GameObject modesPanel;
+        [SerializeField] private TurnIndicator turnIndicator;
 
         private SpawnUnitButton _currentSelected;
         private GridManager _gridManager;
@@ -23,6 +24,9 @@ namespace Assets._Project.Code.UI
 
         private bool _isPlayerPerformAction = false;
 
+        private bool _actionLocked = false;
+
+        private bool _isPlayerTurn = true;
         public bool IsPlacemantEnded => !_isPlacementPhase;
         public bool IsPlayerPerformAction => _isPlayerPerformAction;
 
@@ -44,8 +48,11 @@ namespace Assets._Project.Code.UI
             HandleUnitAction();
         }
 
-        public void ClearPlayerPerformAction() =>
+        public void ClearPlayerPerformAction()
+        {
             _isPlayerPerformAction = false;
+            _actionLocked = false;
+        }
 
         private void PrepareUnitSpawnButtons()
         {
@@ -140,6 +147,10 @@ namespace Assets._Project.Code.UI
 
             if (_currentSelected != null) return;
 
+            if (_actionLocked) return;
+
+            if (!_isPlayerTurn) return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -164,7 +175,21 @@ namespace Assets._Project.Code.UI
                         SelectUnitForMove(unit);
                     }
                     if (_mode == ActionMode.Attack)
+                    {
+                        if (_selectedUnit != null && unit.team != _selectedUnit.team)
+                        {
+                            if (_availableCells.Contains(unit.currentCell))
+                            {
+                                _selectedUnit.Attack(unit);
+                                _isPlayerPerformAction = true;
+                                _actionLocked = true;
+                                ClearSelection();
+                            }
+                            return;
+                        }
+
                         SelectUnitForAttack(unit);
+                    }
                     if (_mode == ActionMode.Scan)
                         SelectUnitForScan(unit);
                     return;
@@ -191,15 +216,21 @@ namespace Assets._Project.Code.UI
                     {
                         Unit target = cell.GetComponentInChildren<Unit>();
 
+                        Debug.Log("Traget" +  target.name);
+
                         if (target != null)
                         {
                             _selectedUnit.Attack(target);
+                            Debug.Log("_selectedUnit.Attack(target)" + target.name);
                             actionPerformed = true;
                         }
                     }
 
-                    if (actionPerformed) 
+                    if (actionPerformed)
+                    {
                         _isPlayerPerformAction = true;
+                        _actionLocked = true;
+                    }
 
                     ClearSelection();
                 }
@@ -334,18 +365,6 @@ namespace Assets._Project.Code.UI
                 btn.SetHighlight(btn.Mode == mode);
         }
 
-        //public void EnablePlayerControls(bool enabled)
-        //{
-        //    EnableActions(enabled);
-        //    _canClickUnits = enabled;
-        //}
-
-        private void EnableActions(bool enabled)
-        {
-            foreach (var btn in actionButtons)
-                btn.SetActive(enabled);
-        }
-
         public void RefreshEnemyVisibility()
         {
             List<Unit> all = new List<Unit>(FindObjectsByType<Unit>(FindObjectsSortMode.None));
@@ -365,6 +384,12 @@ namespace Assets._Project.Code.UI
                 if (unit.currentCell == null) continue;
                 unit.SetModelVisible(visibleCells.Contains(unit.currentCell));
             }
+        }
+
+        public void SetPlayerTurn(bool isPlayerTurn)
+        {
+            _isPlayerTurn = isPlayerTurn;
+            turnIndicator.SetTurn(isPlayerTurn);
         }
     }
 }
