@@ -216,12 +216,9 @@ namespace Assets._Project.Code.UI
                     {
                         Unit target = cell.GetComponentInChildren<Unit>();
 
-                        Debug.Log("Traget" +  target.name);
-
-                        if (target != null)
+                        if (target != null && _availableCells.Contains(cell))
                         {
                             _selectedUnit.Attack(target);
-                            Debug.Log("_selectedUnit.Attack(target)" + target.name);
                             actionPerformed = true;
                         }
                     }

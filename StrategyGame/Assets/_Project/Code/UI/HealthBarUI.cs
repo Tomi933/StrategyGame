@@ -19,6 +19,8 @@ namespace Assets._Project.Code.UI
         private float _maxHealth;
         private float _currentHealth;
 
+        public float CurrentHealth { get; private set; }
+
         public void Init(float maxHealth)
         {
             _maxHealth = maxHealth;

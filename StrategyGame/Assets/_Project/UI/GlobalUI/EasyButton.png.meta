@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 71a0c1e2e122306499386fc6ac9054be
+guid: ba07fb1697b4ed74387db3bf24b5e7cc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1640513440197496427
-    second: "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0"
+      213: 3830273374589679742
+    second: EasyButton_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0"
+      name: EasyButton_0
       rect:
         serializedVersion: 2
-        x: 92
-        y: 413
-        width: 839
-        height: 301
+        x: 95
+        y: 274
+        width: 1332
+        height: 530
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59136cbc7b9bb39e0800000000000000
-      internalID: -1640513440197496427
+      spriteID: e78fd0d275dd72530800000000000000
+      internalID: 3830273374589679742
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 61d79dae2fdc43c4c93778a1e0c923bc
+    spriteID: f6482d2297e9b0642af5b77914701b93
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0": -1640513440197496427
+      EasyButton_0: 3830273374589679742
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

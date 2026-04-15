@@ -22,6 +22,8 @@ public class Unit : MonoBehaviour
 
     private UnitConfigSO _unitConfig;
 
+    public float CurrentHealth => _healthBar.CurrentHealth;
+
     public event Action OnDiedEvent;
 
     public void Init(Cell cell, UnitConfigSO unitConfig)
@@ -264,14 +266,15 @@ public class Unit : MonoBehaviour
     public List<Unit> GetAttackTargets2(GridManager grid, List<Unit> allUnits)
     {
         var targets = new List<Unit>();
+        var attackCells = GetAttackCells(grid, this.team);
+
         foreach (var unit in allUnits)
         {
-            if (unit.team == this.team) continue; // атакуємо тільки ворогів
-            int distance = Mathf.Abs(unit.currentCell.x - currentCell.x) +
-                           Mathf.Abs(unit.currentCell.y - currentCell.y);
-            if (distance <= Config.attackRange)
+            if (unit.team == this.team) continue;
+            if (attackCells.Contains(unit.currentCell))
                 targets.Add(unit);
         }
+
         return targets;
     }
 

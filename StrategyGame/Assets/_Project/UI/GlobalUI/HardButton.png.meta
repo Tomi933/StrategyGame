@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 71a0c1e2e122306499386fc6ac9054be
+guid: 198ccce3fc904794a9f067e29ccc5206
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1640513440197496427
-    second: "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0"
+      213: -890154068687333074
+    second: HardButton_0
+  - first:
+      213: 3077542425045639548
+    second: HardButton_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0"
+      name: HardButton_0
       rect:
         serializedVersion: 2
-        x: 92
-        y: 413
-        width: 839
-        height: 301
+        x: 76
+        y: 292
+        width: 1403
+        height: 571
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 59136cbc7b9bb39e0800000000000000
-      internalID: -1640513440197496427
+      spriteID: e29d58c379985a3f0800000000000000
+      internalID: -890154068687333074
       vertices: []
       indices: 
       edges: []
@@ -151,7 +154,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 61d79dae2fdc43c4c93778a1e0c923bc
+    spriteID: 451c7e124e8e1924c895e052861bff17
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +164,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "ChatGPT Image 23 \u043B\u044E\u0442. 2026 \u0440., 19_15_17_0": -1640513440197496427
+      HardButton_0: -890154068687333074
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

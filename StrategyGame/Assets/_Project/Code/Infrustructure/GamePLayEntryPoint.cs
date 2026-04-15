@@ -30,7 +30,9 @@ namespace Assets._Project.Code.Infrustructure
         {
             GridManager.GenerateGrid();
             GameUIManager.Init(GridManager);
-            BotAI.Init(GridManager);
+            BotDifficulty difficulty = (BotDifficulty)PlayerPrefs.GetInt("Difficulty", (int)BotDifficulty.Medium);
+            Debug.Log("BotDifficulty difficulty = (BotDifficulty)PlayerPrefs.GetInt(\"Difficulty\", (int)BotDifficulty.Medium);" + difficulty);
+            BotAI.Init(GridManager, difficulty);
             TurnManager.Init(BotAI, GameUIManager);
 
             EnemySpawner.SpawnEnemies(GridManager.GetTopCells());
