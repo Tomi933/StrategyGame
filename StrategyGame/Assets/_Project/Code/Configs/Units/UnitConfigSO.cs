@@ -23,7 +23,7 @@ namespace Assets._Project.Code.Configs.Units
         public UnitScanType ScanType;
         public UnitBehavior Behavior;
         [Range(1, 10)] public int MoveRange;
-        [Range(1f, 20f)] public float Health;
+        [Range(1f, 60f)] public float Health;
 
         [Header("Attack")]
         [Range(1, 20)] public float damage = 3;
@@ -31,5 +31,9 @@ namespace Assets._Project.Code.Configs.Units
 
         [Header("Scan")]
         [Range(1, 5)] public int scanRange = 1;
+
+        [Header("Hard Difficulty")]
+        [Range(1f, 3f)] public float hardHpMultiplier = 1f;
+        [Range(1f, 3f)] public float hardDamageMultiplier = 1f;
     }
 }

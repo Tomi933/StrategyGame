@@ -24,3 +24,5 @@ MonoBehaviour:
   damage: 3
   attackRange: 1
   scanRange: 2
+  hardHpMultiplier: 3
+  hardDamageMultiplier: 2

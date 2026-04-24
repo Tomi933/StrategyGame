@@ -1,4 +1,5 @@
 ﻿using Assets._Project.Code.Configs.Units;
+using Assets._Project.Code.Infrustructure;
 using Assets._Project.Code.UI;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,15 @@ public class Unit : MonoBehaviour
         _healthBar.Init(Mathf.Max(1f, _unitConfig.Health));
         _healthBar.OnDied += OnDied;
     }
+
+    public void ApplyHardMultipliers()
+    {
+        _healthBar.Init(Mathf.Max(1f, _unitConfig.Health * _unitConfig.hardHpMultiplier));
+        _hardDamage = _unitConfig.damage * _unitConfig.hardDamageMultiplier;
+    }
+
+    private float _hardDamage = -1f;
+    public float ActualDamage => _hardDamage > 0 ? _hardDamage : Config.damage;
 
     private void OnDied()
     {
@@ -259,7 +269,8 @@ public class Unit : MonoBehaviour
 
     public void Attack(Unit target)
     {
-        target.TakeDamage(Config.damage);
+        target.TakeDamage(ActualDamage);
+        GlobalServices.AudioService.PlayClip("AttackUnit");
     }
 
 

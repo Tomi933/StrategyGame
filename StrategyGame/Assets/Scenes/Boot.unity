@@ -384,6 +384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa300bc34b5b0884c988340a353f9671, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AudioConfig: {fileID: 11400000, guid: 10cfd7bab8131b74b8a8acc8f5cb126f, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

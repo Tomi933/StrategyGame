@@ -28,21 +28,22 @@ namespace Assets._Project.Code.Infrustructure
 
         private IEnumerator BeginGame()
         {
+
             GridManager.GenerateGrid();
             GameUIManager.Init(GridManager);
             BotDifficulty difficulty = (BotDifficulty)PlayerPrefs.GetInt("Difficulty", (int)BotDifficulty.Medium);
-            Debug.Log("BotDifficulty difficulty = (BotDifficulty)PlayerPrefs.GetInt(\"Difficulty\", (int)BotDifficulty.Medium);" + difficulty);
-            BotAI.Init(GridManager, difficulty);
-            TurnManager.Init(BotAI, GameUIManager);
-
             EnemySpawner.SpawnEnemies(GridManager.GetTopCells());
-            CheckBasesDeath();
+            BotAI.Init(GridManager, difficulty);
+            BotAI.ApplyDifficultyMultipliers();
+            TurnManager.Init(BotAI, GameUIManager);
+            TurnManager.OnBotTurnEnded += OnBotTurnEnded;
+
+            GlobalServices.AudioService.PlayMusic("GameplayMusic");
 
             yield return null;
-
-            //Чекаємо поки гравець нероставить всіх units
             yield return new WaitUntil(() => GameUIManager.IsPlacemantEnded);
-            Debug.Log("GameUIManager.IsPlacemantEnded");
+
+            GlobalServices.AudioService.PlayClip("EndSelection");
 
             yield return null;
 
@@ -51,31 +52,63 @@ namespace Assets._Project.Code.Infrustructure
                 yield return new WaitUntil(() => GameUIManager.IsPlayerPerformAction);
                 GameUIManager.RefreshEnemyVisibility();
                 GameUIManager.ClearPlayerPerformAction();
+                if (CheckGameOver()) yield break;
                 TurnManager.EndPlayerTurn();
                 yield return new WaitForSeconds(1);
             }
         }
 
-        private void CheckBasesDeath()
+        private void OnBotTurnEnded()
+        {
+            if (CheckGameOver())
+                TurnManager.OnBotTurnEnded -= OnBotTurnEnded;
+        }
+
+        private bool CheckGameOver()
         {
             var all = FindObjectsByType<Unit>(FindObjectsSortMode.None);
 
-            foreach (var unit in all)
-            {
-                if (unit.Config.Behavior != UnitBehavior.Static) continue;
+            bool hasPlayerBase = false;
+            bool hasPlayerUnits = false;
+            bool hasEnemyBase = false;
 
-                unit.OnDiedEvent += () =>
+            foreach (var u in all)
+            {
+                if (u.team == Team.Player)
                 {
-                    bool playerWon = unit.team == Team.Enemy;
-                    GameOverUI.Show(playerWon);
-                    StopAllCoroutines();
-                };
+                    if (u.Config.Behavior == UnitBehavior.Static) hasPlayerBase = true;
+                    else hasPlayerUnits = true;
+                }
+                else if (u.team == Team.Enemy)
+                {
+                    if (u.Config.Behavior == UnitBehavior.Static) hasEnemyBase = true;
+                }
             }
+
+            if (!hasPlayerBase || !hasPlayerUnits)
+            {
+                GameOverUI.Show(false);
+                StopAllCoroutines();
+                GameUIManager.SetPlayerTurn(false);
+                return true;
+            }
+
+            if (!hasEnemyBase)
+            {
+                GameOverUI.Show(true);
+                StopAllCoroutines();
+                GameUIManager.SetPlayerTurn(false);
+                return true;
+            }
+
+            return false;
         }
 
         private void OnDestroy()
         {
             ExitButton.onClick.RemoveAllListeners();
+            if (TurnManager != null)
+                TurnManager.OnBotTurnEnded -= OnBotTurnEnded;
         }
     }
 }

@@ -13,6 +13,8 @@ public class TurnManager : MonoBehaviour
 
     public bool IsPlayerTurn => CurrentTurn == TurnState.PlayerTurn;
 
+    public event System.Action OnBotTurnEnded;
+
     public void Init(BotAI botAI, GameUIManager gameUIManager)
     {
         _botAI = botAI;
@@ -35,5 +37,6 @@ public class TurnManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         CurrentTurn = TurnState.PlayerTurn;
         _gameUIManager.SetPlayerTurn(true);
+        OnBotTurnEnded?.Invoke();
     }
 }

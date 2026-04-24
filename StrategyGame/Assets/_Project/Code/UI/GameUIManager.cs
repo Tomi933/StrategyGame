@@ -1,7 +1,7 @@
 ﻿using Assets._Project.Code.Configs.Units;
+using Assets._Project.Code.Infrustructure;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace Assets._Project.Code.UI
 {
@@ -144,25 +144,30 @@ namespace Assets._Project.Code.UI
         private void HandleUnitAction()
         {
             if (_isPlacementPhase) return;
-
             if (_currentSelected != null) return;
-
             if (_actionLocked) return;
-
             if (!_isPlayerTurn) return;
 
             if (Input.GetMouseButtonDown(0))
             {
                 Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Collider2D hit = Physics2D.OverlapPoint(mousePosition);
-                
-                if (hit == null)
+
+                Collider2D[] hits = Physics2D.OverlapPointAll(mousePosition);
+
+                Unit unit = null;
+                Cell cell = null;
+
+                foreach (var h in hits)
                 {
-                    ClearSelection();
-                    return;
+                    if (unit == null && h.TryGetComponent(out Unit u))
+                        unit = u;
+
+                    if (cell == null && h.TryGetComponent(out Cell c))
+                        cell = c;
                 }
 
-                if (hit.TryGetComponent(out Unit unit))
+                // --- ПРІОРИТЕТ ЮНІТА ---
+                if (unit != null)
                 {
                     if (_mode == ActionMode.Move)
                     {
@@ -174,6 +179,7 @@ namespace Assets._Project.Code.UI
 
                         SelectUnitForMove(unit);
                     }
+
                     if (_mode == ActionMode.Attack)
                     {
                         if (_selectedUnit != null && unit.team != _selectedUnit.team)
@@ -181,6 +187,7 @@ namespace Assets._Project.Code.UI
                             if (_availableCells.Contains(unit.currentCell))
                             {
                                 _selectedUnit.Attack(unit);
+                                
                                 _isPlayerPerformAction = true;
                                 _actionLocked = true;
                                 ClearSelection();
@@ -190,12 +197,15 @@ namespace Assets._Project.Code.UI
 
                         SelectUnitForAttack(unit);
                     }
+
                     if (_mode == ActionMode.Scan)
                         SelectUnitForScan(unit);
+
                     return;
                 }
 
-                if (hit.TryGetComponent(out Cell cell))
+                // --- ТЕПЕР CELL ---
+                if (cell != null)
                 {
                     if (_selectedUnit == null) return;
 
@@ -206,8 +216,12 @@ namespace Assets._Project.Code.UI
                         if (_availableCells.Contains(cell))
                         {
                             _selectedUnit.MoveTo(cell);
+
                             List<Unit> all = new List<Unit>(FindObjectsByType<Unit>(FindObjectsSortMode.None));
                             UpdateEnemyVisibility(_selectedUnit, all, _gridManager);
+
+                            GlobalServices.AudioService.PlayClip("MoveUnit");
+
                             actionPerformed = true;
                         }
                     }
@@ -219,6 +233,7 @@ namespace Assets._Project.Code.UI
                         if (target != null && _availableCells.Contains(cell))
                         {
                             _selectedUnit.Attack(target);
+                        
                             actionPerformed = true;
                         }
                     }
@@ -230,7 +245,11 @@ namespace Assets._Project.Code.UI
                     }
 
                     ClearSelection();
+                    return;
                 }
+
+                // нічого не клікнули
+                ClearSelection();
             }
         }
 
@@ -269,6 +288,17 @@ namespace Assets._Project.Code.UI
             _selectedUnit = unit;
             _availableCells = unit.GetAttackCells(_gridManager, unit.team);
 
+
+            // збираємо всі видимі клітинки від усіх гравцівських юнітів
+            var all = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+            HashSet<Cell> visibleCells = new HashSet<Cell>();
+            foreach (var u in all)
+            {
+                if (u.team != Team.Player) continue;
+                foreach (var cell in u.GetScanCells(_gridManager))
+                    visibleCells.Add(cell);
+            }
+
             foreach (var cell in _availableCells)
             {
                 Unit target = cell.GetComponentInChildren<Unit>();
@@ -287,7 +317,10 @@ namespace Assets._Project.Code.UI
 
                 if (target.team != _selectedUnit.team)
                 {
-                    cell.SetEnemyColor();
+                    if (visibleCells.Contains(cell))
+                        cell.SetEnemyColor();
+                    else
+                        cell.SetAttackColor();
                 }
                 else
                 {
